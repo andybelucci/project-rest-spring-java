@@ -1,0 +1,61 @@
+package br.com.anderson.controllers;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.com.anderson.data.dto.v1.PersonDTO;
+import br.com.anderson.data.v2.PersonDTOV2;
+import br.com.anderson.services.PersonServices;
+
+@RestController
+@RequestMapping("/person")
+public class PersonController {
+
+    @Autowired
+    private PersonServices service;
+
+    @GetMapping(value = "/v1", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PersonDTO> findAll() {
+        return service.findAll();
+    }
+
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonDTO findById(@PathVariable("id") Long id) {
+        var person = service.findById(id);
+        person.setBirthDay(new Date());
+        return person;
+    }
+
+    @PostMapping(value = "/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonDTO create(@RequestBody PersonDTO person) {
+        return service.createv1(person);
+    }
+
+    @PostMapping(value = "/v2", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonDTOV2 create(@RequestBody PersonDTOV2 person) {
+        return service.createV2(person);
+    }
+
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PersonDTO update(@RequestBody PersonDTO person) {
+        return service.update(person);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
